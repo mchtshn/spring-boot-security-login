@@ -1,4 +1,4 @@
-package com.mucahit.springsecuritylogin.system;
+package com.mucahit.springsecuritylogin;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
