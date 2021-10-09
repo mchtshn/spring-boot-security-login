@@ -12,6 +12,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
+import static com.mucahit.springsecuritylogin.security.ApplicationUserRole.ADMIN;
+import static com.mucahit.springsecuritylogin.security.ApplicationUserRole.STUDENT;
+
 @Configuration
 @EnableWebSecurity
 public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -27,7 +30,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/","index","/css/*","/js/*")
+                .antMatchers("/", "index", "/css/*", "/js/*")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
@@ -43,10 +46,16 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         UserDetails mucahitUser = User.builder()
                 .username("mucahit")
                 .password(passwordEncoder.encode("password"))
-                .roles("STUDENT") //ROLE_STUDENT
+                .roles(STUDENT.name()) //ROLE_STUDENT
                 .build();
 
-        return new InMemoryUserDetailsManager(mucahitUser);
+        UserDetails ahmetUser = User.builder()
+                .username("ahmet")
+                .password(passwordEncoder.encode("password"))
+                .roles(ADMIN.name()) //ROLE_ADMIN spring adds ROLE prefix automatically
+                .build();
+        return new InMemoryUserDetailsManager(
+                mucahitUser, ahmetUser);
 
     }
 
