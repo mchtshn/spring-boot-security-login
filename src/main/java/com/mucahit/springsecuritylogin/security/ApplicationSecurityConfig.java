@@ -47,7 +47,8 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticated()
                 .and()
                 //.httpBasic();
-                .formLogin();
+                .formLogin()
+                .loginPage("/login").permitAll();
     }
 
     // instead of db , users are created in memory
