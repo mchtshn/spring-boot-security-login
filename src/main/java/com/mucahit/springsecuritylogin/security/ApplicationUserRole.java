@@ -12,7 +12,7 @@ import static com.mucahit.springsecuritylogin.security.ApplicationUserPermission
 public enum ApplicationUserRole {
     STUDENT(Sets.newHashSet()),
     ADMIN(Sets.newHashSet(STUDENT_READ, STUDENT_WRITE, COURSE_READ, COURSE_WRITE)),
-    ADMINTRAINEE(Sets.newHashSet(COURSE_READ, COURSE_WRITE));
+    ADMINTRAINEE(Sets.newHashSet(COURSE_READ, STUDENT_READ));
 
     private final Set<ApplicationUserPermission> permissions;
 
