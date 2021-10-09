@@ -14,6 +14,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import java.util.concurrent.TimeUnit;
 
 import static com.mucahit.springsecuritylogin.security.ApplicationUserPermission.COURSE_WRITE;
 import static com.mucahit.springsecuritylogin.security.ApplicationUserRole.*;
@@ -49,7 +52,18 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 //.httpBasic();
                 .formLogin()
                 .loginPage("/login").permitAll()
-                .defaultSuccessUrl("/courses",true);
+                .defaultSuccessUrl("/courses",true)
+                .and()
+                .rememberMe().tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(21))
+                .key("somethingverysecured")
+                .and()
+                .logout()
+                .logoutUrl("/logout")
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout","GET"))//if csrf is enabled , this should  be moved becaus you want it to be post
+                .clearAuthentication(true)
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID","remember-me")
+                .logoutSuccessUrl("/login");
     }
 
     // instead of db , users are created in memory
