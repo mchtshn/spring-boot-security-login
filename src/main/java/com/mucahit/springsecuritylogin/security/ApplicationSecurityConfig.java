@@ -1,6 +1,7 @@
 package com.mucahit.springsecuritylogin.security;
 
 import com.mucahit.springsecuritylogin.auth.ApplicationUserService;
+import com.mucahit.springsecuritylogin.jwt.JwtConfig;
 import com.mucahit.springsecuritylogin.jwt.JwtTokenVerifier;
 import com.mucahit.springsecuritylogin.jwt.JwtUsernameAndPasswordAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +15,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import java.util.concurrent.TimeUnit;
+import javax.crypto.SecretKey;
 
 import static com.mucahit.springsecuritylogin.security.ApplicationUserPermission.COURSE_WRITE;
 import static com.mucahit.springsecuritylogin.security.ApplicationUserRole.*;
@@ -30,10 +30,15 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final ApplicationUserService applicationUserService;
 
+    private final SecretKey secretKey;
+    private final JwtConfig jwtConfig;
+
     @Autowired
-    public ApplicationSecurityConfig(PasswordEncoder passwordEncoder, ApplicationUserService applicationUserService) {
+    public ApplicationSecurityConfig(PasswordEncoder passwordEncoder, ApplicationUserService applicationUserService, SecretKey secretKey, JwtConfig jwtConfig) {
         this.passwordEncoder = passwordEncoder;
         this.applicationUserService = applicationUserService;
+        this.secretKey = secretKey;
+        this.jwtConfig = jwtConfig;
     }
 
     @Override
@@ -44,8 +49,8 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager()))
-                .addFilterAfter(new JwtTokenVerifier(),JwtUsernameAndPasswordAuthenticationFilter.class)
+                .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(), jwtConfig, secretKey))
+                .addFilterAfter(new JwtTokenVerifier(secretKey, jwtConfig), JwtUsernameAndPasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/", "index", "/css/*", "/js/*").permitAll()
                 .antMatchers("/api/**").hasRole(STUDENT.name())
@@ -55,9 +60,9 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/management/api/**").hasAnyRole(ADMIN.name(), ADMINTRAINEE.name())//role based
                 .anyRequest()
                 .authenticated();
-                //basic authentication
-                //.httpBasic();
-                //form authentication
+        //basic authentication
+        //.httpBasic();
+        //form authentication
                 /*.formLogin()
                 .loginPage("/login").permitAll()
                 .defaultSuccessUrl("/courses", true)
