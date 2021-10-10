@@ -35,11 +35,11 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
         try {
             UsernameAndPasswordRequest authenticationRequest = new ObjectMapper().readValue(request.getInputStream(), UsernameAndPasswordRequest.class);
             Authentication authentication = new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword());
-            authenticationManager.authenticate(authentication);
+            Authentication authenticate = authenticationManager.authenticate(authentication);
+            return authenticate;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return super.attemptAuthentication(request, response);
     }
 
     //this method will be invoked after  the attemptAuthentication is succesfull. if the authentication method fails ,this will be never executed.
