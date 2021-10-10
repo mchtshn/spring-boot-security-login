@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 public class JwtConfig {
 
     private String secretKey;
-    private String tokenPrefix;
     private Integer tokenExpirationAfterDays;
 
     public JwtConfig() {
@@ -21,14 +20,6 @@ public class JwtConfig {
 
     public void setSecretKey(String secretKey) {
         this.secretKey = secretKey;
-    }
-
-    public String getTokenPrefix() {
-        return tokenPrefix;
-    }
-
-    public void setTokenPrefix(String tokenPrefix) {
-        this.tokenPrefix = tokenPrefix;
     }
 
     public Integer getTokenExpirationAfterDays() {
