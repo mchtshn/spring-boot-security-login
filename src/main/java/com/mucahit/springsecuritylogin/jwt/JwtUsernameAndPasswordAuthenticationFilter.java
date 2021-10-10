@@ -25,38 +25,52 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
     private final JwtConfig jwtConfig;
     private final SecretKey secretKey;
 
-    public JwtUsernameAndPasswordAuthenticationFilter(AuthenticationManager authenticationManager, JwtConfig jwtConfig, SecretKey secretKey) {
+    public JwtUsernameAndPasswordAuthenticationFilter(AuthenticationManager authenticationManager,
+                                                      JwtConfig jwtConfig,
+                                                      SecretKey secretKey) {
         this.authenticationManager = authenticationManager;
         this.jwtConfig = jwtConfig;
         this.secretKey = secretKey;
     }
 
-
     //client sends credential ,server validates credentials.
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        //grab username and password
+    public Authentication attemptAuthentication(HttpServletRequest request,
+                                                HttpServletResponse response) throws AuthenticationException {
+
         try {
-            UsernameAndPasswordRequest authenticationRequest = new ObjectMapper().readValue(request.getInputStream(), UsernameAndPasswordRequest.class);
-            Authentication authentication = new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+            UsernameAndPasswordRequest authenticationRequest = new ObjectMapper()
+                    .readValue(request.getInputStream(), UsernameAndPasswordRequest.class);
+
+            Authentication authentication = new UsernamePasswordAuthenticationToken(
+                    authenticationRequest.getUsername(),
+                    authenticationRequest.getPassword()
+            );
+
             Authentication authenticate = authenticationManager.authenticate(authentication);
             return authenticate;
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
     }
 
     //this method will be invoked after  the attemptAuthentication is succesfull. if the authentication method fails ,this will be never executed.
     //this methods creates token
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+    protected void successfulAuthentication(HttpServletRequest request,
+                                            HttpServletResponse response,
+                                            FilterChain chain,
+                                            Authentication authResult) throws IOException, ServletException {
         String token = Jwts.builder()
                 .setSubject(authResult.getName())
                 .claim("authorities", authResult.getAuthorities())
                 .setIssuedAt(new Date())
-                .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusWeeks(jwtConfig.getTokenExpirationAfterDays())))
+                .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusDays(jwtConfig.getTokenExpirationAfterDays())))
                 .signWith(secretKey)
                 .compact();
-        response.addHeader("Authorization", "Bearer " + token);
+
+        response.addHeader(jwtConfig.getAuthorizationHeader(), jwtConfig.getTokenPrefix() + token);
     }
 }

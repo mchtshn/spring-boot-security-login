@@ -29,12 +29,17 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     private final PasswordEncoder passwordEncoder;
 
     private final ApplicationUserService applicationUserService;
-
     private final SecretKey secretKey;
     private final JwtConfig jwtConfig;
 
+   /* private final SecretKey secretKey;
+    private final JwtConfig jwtConfig;*/
+
     @Autowired
-    public ApplicationSecurityConfig(PasswordEncoder passwordEncoder, ApplicationUserService applicationUserService, SecretKey secretKey, JwtConfig jwtConfig) {
+    public ApplicationSecurityConfig(PasswordEncoder passwordEncoder,
+                                     ApplicationUserService applicationUserService,
+                                     SecretKey secretKey,
+                                     JwtConfig jwtConfig) {
         this.passwordEncoder = passwordEncoder;
         this.applicationUserService = applicationUserService;
         this.secretKey = secretKey;
